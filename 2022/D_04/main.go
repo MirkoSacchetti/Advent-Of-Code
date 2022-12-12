@@ -30,11 +30,18 @@ func check_if_overlap(pairA string, pairB string) bool{
     a1, _ := strconv.Atoi(a[1])
     b0, _ := strconv.Atoi(b[0])
     b1, _ := strconv.Atoi(b[1])
-    if a0 >= b0 && a1 <= b0 {
-        return true // a include b start
+
+    if a0 <= b0 && a1 >= b0 {
+        return true // a contain b start
     }
-    if a0 >= b1 && a1 <= b1 {
-        return true // a include b end
+    if a0 <= b1 && a1 >= b1 {
+        return true // a contain b end
+    }
+    if b0 <= a0 && b1 >= a0 {
+        return true // b contain a start
+    }
+    if b0 <= a1 && b1 >= a1 {
+        return true // b contain a end
     }
     return false
 }
@@ -46,10 +53,10 @@ func check_if_contained(pairA string, pairB string) bool{
     a1, _ := strconv.Atoi(a[1])
     b0, _ := strconv.Atoi(b[0])
     b1, _ := strconv.Atoi(b[1])
-    if a0 <= b0 && a1 >= b0 {
+    if a0 <= b0 && a1 >= b1 {
         return true // a contain b
     }
-    if a0 <= b1 && a1 >= b1 {
+    if b0 <= a0 && b1 >= a1 {
         return true // b contain a
     }
     return false
