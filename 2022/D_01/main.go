@@ -17,7 +17,6 @@ func check(e error) {
 }
 
 func sumStrings(array[] string) int {
-    fmt.
     result := 0
     for _, v := range array {
         val, _ := strconv.Atoi(v)
