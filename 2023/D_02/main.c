@@ -1,34 +1,66 @@
 #include <stdio.h>
 
-typedef struct {
-    int red;
-    int green;
-    int blue;
-} Cubes;
+#define MAX_LINE_LENGTH 1025
 
-int getGameID(char *game, int *index) {
+typedef struct {
+  int red;
+  int green;
+  int blue;
+} CubesHand;
+
+int getGameID(char *game) {
+  int gameID = 0;
+  while (*game && *game != ':') {
+    if (*game >= '0' && *game <= '9')
+      gameID = gameID * 10 + (*game - '0');
+    game++;
+  }
+  game++;
+  return gameID;
 }
-bool isValidGame(char *game, int *index) {
-    Cubes maxCubes = {red: 12, green: 13. bluee:14}
+
+int getCubesHand(char *game, CubesHand *cube) {
+  while (*game && *game != ';') {
+    int nCubes = 0;
+    int colorIndex = 0;
+    char color[12];
+    while (*game && *game != ',') {
+      // check numbers or words or ignore the rest
+      if (*game >= '0' && *game <= '9') {
+        nCubes = nCubes * 10 + (*game - '0');
+      } else if (*game >= 'a' && *game <= 'z') {
+        color[colorIndex++] = game[0];
+        printf("++++ %s\n", color);
+      }
+
+      game++;
+    }
+
+    printf("++++ %s\n", color);
+    game++;
+  }
+  return 0;
 }
+
+int isValidGame(char *game) { return 1; }
 
 int main() {
-    FILE *file = fopen("test", "r");
-    if (!file) {
-        perror("Err. in file opening");
-        return -1;
-    }
-    int counter1 = 0
-    int counter2 = 0
-    while (fgets(line, sizeof(line), file)) {
-        int index =0;
-        gameID =  getGameID(line, &inmdex)
-        if ( checkGame(line, &index) ) counter1 =+ gameID;
-    }
-
-    fclose(file);
-    printf("Result first half: %d\n", counter1);
-    printf("Result second half: %d\n", counter2);
-    return 0;
+  FILE *file = fopen("test", "r");
+  if (!file) {
+    perror("Err. in file opening");
+    return -1;
+  }
+  int counter1 = 0;
+  int counter2 = 0;
+  char line[MAX_LINE_LENGTH];
+  while (fgets(line, MAX_LINE_LENGTH, file)) {
+    char *ptr = line;
+    CubesHand cube;
+    int gId = getGameID(ptr);
+    getCubesHand(ptr, &cube);
+  }
+  printf("Result first half: %d\n", counter1);
+  printf("Result second half: %d\n", counter2);
+  fclose(file);
+  return 0;
 }
-
