@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 
 #define MAX_LINE_LENGTH 1025
 #define MAX_HANDS_IN_GAME 25
@@ -20,13 +19,13 @@ int getGameID(char **hands) {
   return gameID;
 }
 
-int getHandCubes(char **hands, CubesHand *cube) {
+void getHandCubes(char **hands, CubesHand *hand) {
   while (**hands && **hands != ';') {
     int nCubes = 0;
     int colorIndex = 0;
-    char color[12];
+    char color[6] = {0};
+
     while (**hands && **hands != ',' && **hands != ';') {
-      // check numbers or words or ignore the rest
       if (**hands >= '0' && **hands <= '9') {
         nCubes = nCubes * 10 + (**hands - '0');
       } else if (**hands >= 'a' && **hands <= 'z') {
@@ -34,61 +33,85 @@ int getHandCubes(char **hands, CubesHand *cube) {
       }
       (*hands)++;
     }
+
     color[colorIndex] = '\0';
-    if (color[0] == 'r')
-      cube->red = nCubes;
-    if (color[0] == 'g')
-      cube->green = nCubes;
-    if (color[0] == 'b')
-      cube->blue = nCubes;
-    (*hands)++;
+    if (color[0] == 'r') {
+      hand->red = nCubes;
+    } else if (color[0] == 'g') {
+      hand->green = nCubes;
+    } else if (color[0] == 'b') {
+      hand->blue = nCubes;
+    }
+
+    if (**hands == ',' || **hands == ' ')
+      (*hands)++;
   }
-  return 0;
+  if (**hands == ';')
+    (*hands)++;
 }
 
-int isValidGame(CubesHand *hands, int length) {
+int isValidGame(CubesHand *hands, int length, int gId) {
   CubesHand maxCubes = {12, 13, 14};
   for (int i = 0; i < length; i++) {
-    printf("%d - ", hands[i].red);
-    printf("%d - ", hands[i].green);
-    printf("%d\n", hands[i].blue);
-    if (hands[i].red > maxCubes.red)
+    if (hands[i].red > maxCubes.red) {
+      // printf("game %d is not valid, cube %d red is %d\n", gId, i,
+      // hands[i].red);
       return 0;
-    if (hands[i].green > maxCubes.green)
+    }
+    if (hands[i].green > maxCubes.green) {
+      // printf("game %d is not valid, cube %d green is %d\n", gId, i,
+      // hands[i].green);
       return 0;
-    if (hands[i].green > maxCubes.blue)
+    }
+    if (hands[i].blue > maxCubes.blue) {
+      // printf("game %d is not valid, cube %d blue is %d\n", gId, i,
+      // hands[i].blue);
       return 0;
+    }
   }
-  return 1;
+  return gId;
+}
+
+int getPowerMinCubes(CubesHand *hands, int length, int gId) {
+  CubesHand minCubes = {0};
+  for (int i = 0; i < length; i++) {
+    if (i == 0 || minCubes.red < hands[i].red) {
+      minCubes.red = hands[i].red;
+    }
+    if (i == 0 || minCubes.green < hands[i].green) {
+      minCubes.green = hands[i].green;
+    }
+    if (i == 0 || minCubes.blue < hands[i].blue) {
+      minCubes.blue = hands[i].blue;
+    }
+  }
+  return minCubes.red * minCubes.green * minCubes.blue;
 }
 
 int main() {
-  FILE *file = fopen("test", "r");
+  FILE *file = fopen("input", "r");
   if (!file) {
-    perror("Err. in file opening");
+    perror("Error in file opening");
     return -1;
   }
   int counter1 = 0;
   int counter2 = 0;
-  char *line = malloc(MAX_LINE_LENGTH);
+  char line[MAX_LINE_LENGTH];
   while (fgets(line, MAX_LINE_LENGTH, file)) {
     char *hands = line;
     int gId = getGameID(&hands);
-    CubesHand gamesCubes[MAX_HANDS_IN_GAME];
-    int cubeHandIndex = 0;
+    CubesHand gamesCubes[MAX_HANDS_IN_GAME] = {0};
+    int cubesHandIndex = 0;
     while (*hands) {
-      CubesHand cube = {0, 0, 0};
-      getHandCubes(&hands, &cube);
-      gamesCubes[cubeHandIndex] = cube;
-      cubeHandIndex++;
-      if (isValidGame(gamesCubes, cubeHandIndex)) {
-      }
-      counter1 += gId;
+      CubesHand hand = {0};
+      getHandCubes(&hands, &hand);
+      gamesCubes[cubesHandIndex++] = hand;
     }
+    counter1 += isValidGame(gamesCubes, cubesHandIndex, gId);
+    counter2 += getPowerMinCubes(gamesCubes, cubesHandIndex, gId);
   }
-
-  printf("Result first half: %d\n", counter1);
-  printf("Result second half: %d\n", counter2);
+  printf("Result first half: \t%d\n", counter2);
+  printf("Result second half: \t%d\n", counter2);
   fclose(file);
   return 0;
 }
