@@ -33,18 +33,15 @@ void getHandCubes(char **hands, CubesHand *hand) {
       }
       (*hands)++;
     }
-
-    color[colorIndex] = '\0';
-    if (color[0] == 'r') {
-      hand->red = nCubes;
-    } else if (color[0] == 'g') {
-      hand->green = nCubes;
-    } else if (color[0] == 'b') {
-      hand->blue = nCubes;
-    }
-
-    if (**hands == ',' || **hands == ' ')
-      (*hands)++;
+    if (color[0] == 'r')
+      cube->red = nCubes;
+    if (color[0] == 'g')
+      cube->green = nCubes;
+    if (color[0] == 'b')
+      cube->blue = nCubes;
+    if (**hands == ';')
+      return 0;
+    (*hands)++;
   }
   if (**hands == ';')
     (*hands)++;
@@ -53,19 +50,14 @@ void getHandCubes(char **hands, CubesHand *hand) {
 int isValidGame(CubesHand *hands, int length, int gId) {
   CubesHand maxCubes = {12, 13, 14};
   for (int i = 0; i < length; i++) {
-    if (hands[i].red > maxCubes.red) {
-      // printf("game %d is not valid, cube %d red is %d\n", gId, i,
-      // hands[i].red);
+    if (hands[i].red > maxCubes.red)
       return 0;
     }
     if (hands[i].green > maxCubes.green) {
       // printf("game %d is not valid, cube %d green is %d\n", gId, i,
       // hands[i].green);
       return 0;
-    }
-    if (hands[i].blue > maxCubes.blue) {
-      // printf("game %d is not valid, cube %d blue is %d\n", gId, i,
-      // hands[i].blue);
+    if (hands[i].blue > maxCubes.blue)
       return 0;
     }
   }
@@ -103,15 +95,22 @@ int main() {
     CubesHand gamesCubes[MAX_HANDS_IN_GAME] = {0};
     int cubesHandIndex = 0;
     while (*hands) {
-      CubesHand hand = {0};
-      getHandCubes(&hands, &hand);
-      gamesCubes[cubesHandIndex++] = hand;
+      CubesHand cube = {0, 0, 0};
+      getHandCubes(&hands, &cube);
+      printf("%d=%d %d %d \n", gId, cube.red, cube.green, cube.blue);
+      gamesCubes[cubeHandIndex] = cube;
+      cubeHandIndex++;
+      if (isValidGame(gamesCubes, cubeHandIndex)) {
+        counter1 += gId;
+      } else {
+      }
     }
     counter1 += isValidGame(gamesCubes, cubesHandIndex, gId);
     counter2 += getPowerMinCubes(gamesCubes, cubesHandIndex, gId);
   }
-  printf("Result first half: \t%d\n", counter2);
-  printf("Result second half: \t%d\n", counter2);
+  printf("\n");
+  printf("Result first half: %d\n", counter1);
+  printf("Result second half: %d\n", counter2);
   fclose(file);
   return 0;
 }
