@@ -1,2 +1,34 @@
 aoc_code
-a.out
+
+*.out
+
+# Target directory generata da Cargo
+target/
+
+# File di lock delle dipendenze (non necessario per progetti collaborativi, ma utile per progetti singoli)
+Cargo.lock
+
+# File di output di compilazione
+**/*.exe
+**/*.dylib
+**/*.so
+**/*.dll
+
+# File temporanei di editor/IDE
+.vscode/
+.idea/
+*.iml
+
+# File temporanei del sistema operativo
+.DS_Store
+Thumbs.db
+
+# File temporanei di compilazione
+*.log
+*.tmp
+
+# Backup automatici o file di swap (ad esempio, di editor come Vim)
+*.swp
+*.swo
+*.bak
+
