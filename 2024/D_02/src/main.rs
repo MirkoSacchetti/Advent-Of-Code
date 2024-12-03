@@ -8,7 +8,6 @@ fn main() {
 
 fn parse_input_to_matrix(filename: &str) -> Vec<Vec<i32>> {
     let content = fs::read_to_string(filename).expect("Impossibile leggere il file");
-
     content
         .lines()
         .map(|line| {
@@ -23,58 +22,50 @@ fn parse_input_to_matrix(filename: &str) -> Vec<Vec<i32>> {
 }
 
 fn part_one(m: &Vec<Vec<i32>>) -> i32 {
+    m.iter().filter(|report| is_safe(report)).count() as i32
+}
+
+fn part_two(m: &Vec<Vec<i32>>) -> i32 {
     let mut safe_reports = 0;
-    for report in m.iter() {
-        let mut is_stable = false;
-        let mut is_decreasing = false;
-        let mut is_increasing = false;
-        for index in 0..report.len() - 1 {
-            let next_level = report[index + 1];
-            match check_increment(report[index], next_level) {
-                1 => is_increasing = true,
-                -1 => is_decreasing = true,
-                _ => is_stable = true,
+    for report in m {
+        if is_safe(report) {
+            safe_reports += 1;
+            continue;
+        }
+
+        let mut is_safe_with_dampener = false;
+        for i in 0..report.len() {
+            let mut modified_report = report.clone();
+            modified_report.remove(i);
+            if is_safe(&modified_report) {
+                is_safe_with_dampener = true;
+                break;
             }
         }
-        if !is_stable && !(is_increasing && is_decreasing) {
-            safe_reports += 1;
+        if is_safe_with_dampener {
+            safe_reports += 1
         }
     }
     safe_reports
 }
 
-fn part_two(m: &Vec<Vec<i32>>) -> i32 {
-    let mut safe_reports = 0;
-    for mut report in m.iter().cloned() {
-        let mut problem_dumpener = 0;
-        let mut is_safe = false;
-        while problem_dumpener < 2 && !is_safe {
-            let mut is_decreasing = false;
-            let mut is_increasing = false;
-            let mut is_stable = false;
-            for index in 0..report.len() - 1 {
-                let next_level = report[index + 1];
-                match check_increment(report[index], next_level) {
-                    1 => is_increasing = true,
-                    -1 => is_decreasing = true,
-                    _ => is_stable = true,
-                }
-                if is_stable || (is_increasing && is_decreasing) {
-                    problem_dumpener += 1;
-                    report.remove(index + 1);
-                    break;
-                }
-            }
-            if !is_stable && !(is_increasing && is_decreasing) {
-                is_safe = true;
-                println!("{:?}", report)
-            }
-        }
-        if is_safe {
-            safe_reports += 1;
+fn is_safe(report: &[i32]) -> bool {
+    if report.len() < 2 {
+        return false;
+    }
+
+    let mut is_increasing = true;
+    let mut is_decreasing = true;
+
+    for window in report.windows(2) {
+        match check_increment(window[0], window[1]) {
+            1 => is_decreasing = false,
+            -1 => is_increasing = false,
+            _ => return false, // Non valido
         }
     }
-    safe_reports
+
+    is_increasing || is_decreasing
 }
 
 fn check_increment(a: i32, b: i32) -> i32 {
