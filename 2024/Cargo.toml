@@ -4,6 +4,8 @@ members = [
     "D_01",
     "D_02",
     "D_03",
+    "D_04",
+    "D_05",
 ]
 
 [workspace.dependencies]
