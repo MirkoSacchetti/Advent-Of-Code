@@ -18,21 +18,39 @@ fn part_one(map: &[Vec<char>]) -> i32 {
 
 // TODO too slow!!! > 18secs
 fn part_two(map: &[Vec<char>]) -> i32 {
-    let mut counter_loop = 0;
     let mut g = Guardian::new(&map).unwrap();
     g.simulate();
-    for y in 0..map.len() {
-        for x in 0..map[y].len() {
-            if g.map[y][x] == 'X' {
-                let mut modified_map = g.map.to_vec();
-                modified_map[y][x] = '#';
-                let mut guardian = Guardian::new(&modified_map).unwrap();
-                if guardian.has_infinite_loop() {
-                    counter_loop += 1;
-                }
-            }
+
+    // Raccogli le posizioni con 'X'
+    let positions_with_x: Vec<(usize, usize)> = g
+        .map
+        .iter()
+        .enumerate()
+        .flat_map(|(y, row)| {
+            row.iter().enumerate().filter_map(
+                move |(x, &cell)| {
+                    if cell == 'X' {
+                        Some((y, x))
+                    } else {
+                        None
+                    }
+                },
+            )
+        })
+        .collect();
+
+    let mut counter_loop = 0;
+
+    // Processa ogni posizione con 'X'
+    for (y, x) in positions_with_x {
+        let mut modified_map = g.map.clone(); // Clona solo una volta
+        modified_map[y][x] = '#'; // Modifica temporaneamente la cella
+        let mut guardian = Guardian::new(&modified_map).unwrap();
+        if guardian.has_infinite_loop() {
+            counter_loop += 1;
         }
     }
+
     counter_loop
 }
 
